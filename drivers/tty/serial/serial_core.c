@@ -360,7 +360,9 @@ uart_get_baud_rate(struct uart_port *port, struct ktermios *termios,
 	}
 
 	for (try = 0; try < 2; try++) {
+		printk(KERN_DEBUG "Calling from %s\n",__FUNCTION__);
 		baud = tty_termios_baud_rate(termios);
+		printk(KERN_DEBUG "%s: baud rate %d\n", __FUNCTION__, baud);
 
 		/*
 		 * The spd_hi, spd_vhi, spd_shi, spd_warp kludge...
@@ -378,8 +380,10 @@ uart_get_baud_rate(struct uart_port *port, struct ktermios *termios,
 		}
 
 		if (baud >= min && baud <= max)
+		{
+			printk(KERN_DEBUG "%s: RETURNING NOW, baud rate %d\n", __FUNCTION__, baud);
 			return baud;
-
+		}
 		/*
 		 * Oops, the quotient was zero.  Try again with
 		 * the old baud rate if possible.

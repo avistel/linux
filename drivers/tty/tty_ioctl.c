@@ -319,8 +319,12 @@ speed_t tty_termios_baud_rate(struct ktermios *termios)
 
 #ifdef BOTHER
 	/* Magic token for arbitrary speed via c_ispeed/c_ospeed */
+	printk(KERN_DEBUG "BOTHER defined, c_cflag,=%d, cbaud=%d\n",termios->c_cflag, cbaud);
 	if (cbaud == BOTHER)
+	{
+		printk(KERN_DEBUG "using output speed: %d\n",termios->c_ospeed );
 		return termios->c_ospeed;
+	}
 #endif
 	if (cbaud & CBAUDEX) {
 		cbaud &= ~CBAUDEX;
@@ -330,6 +334,7 @@ speed_t tty_termios_baud_rate(struct ktermios *termios)
 		else
 			cbaud += 15;
 	}
+	printk(KERN_DEBUG "baud table entry: %d\n", baud_table[cbaud]);
 	return baud_table[cbaud];
 }
 EXPORT_SYMBOL(tty_termios_baud_rate);

@@ -528,7 +528,6 @@ static void serial8250_clear_fifos(struct uart_8250_port *p)
 static inline void serial8250_em485_rts_after_send(struct uart_8250_port *p)
 {
 	unsigned char mcr = serial8250_in_MCR(p);
-
 	if (p->port.rs485.flags & SER_RS485_RTS_AFTER_SEND)
 		mcr |= UART_MCR_RTS;
 	else
@@ -599,7 +598,6 @@ int serial8250_em485_init(struct uart_8250_port *p)
 	p->em485->active_timer = NULL;
 
 	serial8250_em485_rts_after_send(p);
-
 	return 0;
 }
 EXPORT_SYMBOL_GPL(serial8250_em485_init);
@@ -1405,7 +1403,7 @@ static void __do_stop_tx_rs485(struct uart_8250_port *p)
 	 * Enable previously disabled RX interrupts.
 	 */
 	if (!(p->port.rs485.flags & SER_RS485_RX_DURING_TX)) {
-		serial8250_clear_fifos(p);
+		serial8250_clear_and_reinit_fifos(p);
 
 		serial8250_rpm_get(p);
 
@@ -1442,6 +1440,7 @@ static void __stop_tx_rs485(struct uart_8250_port *p)
 	 * __do_stop_tx_rs485 is going to set RTS according to config
 	 * AND flush RX FIFO if required.
 	 */
+
 	if (p->port.rs485.delay_rts_after_send > 0) {
 		em485->active_timer = &em485->stop_tx_timer;
 		mod_timer(&em485->stop_tx_timer, jiffies +
@@ -1477,9 +1476,10 @@ static inline void __stop_tx(struct uart_8250_port *p)
 
 		del_timer(&em485->start_tx_timer);
 		em485->active_timer = NULL;
+        __stop_tx_rs485(p);
 	}
 	__do_stop_tx(p);
-	__stop_tx_rs485(p);
+
 }
 
 static void serial8250_stop_tx(struct uart_port *port)
@@ -1544,11 +1544,13 @@ static inline void start_tx_rs485(struct uart_port *port)
 	mcr = serial8250_in_MCR(up);
 	if (!!(up->port.rs485.flags & SER_RS485_RTS_ON_SEND) !=
 	    !!(mcr & UART_MCR_RTS)) {
-		if (up->port.rs485.flags & SER_RS485_RTS_ON_SEND)
+        if (up->port.rs485.flags & SER_RS485_RTS_ON_SEND) {
 			mcr |= UART_MCR_RTS;
-		else
+        } else
+        {
 			mcr &= ~UART_MCR_RTS;
-		serial8250_out_MCR(up, mcr);
+        }
+        serial8250_out_MCR(up, mcr);
 
 		if (up->port.rs485.delay_rts_before_send > 0) {
 			em485->active_timer = &em485->start_tx_timer;
@@ -1718,7 +1720,6 @@ void serial8250_tx_chars(struct uart_8250_port *up)
 	struct uart_port *port = &up->port;
 	struct circ_buf *xmit = &port->state->xmit;
 	int count;
-
 	if (port->x_char) {
 		serial_out(up, UART_TX, port->x_char);
 		port->icount.tx++;
