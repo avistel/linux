@@ -355,7 +355,6 @@ static void omap_8250_set_termios(struct uart_port *port,
 				  port->uartclk / 16 / 0xffff,
 				  port->uartclk / 13);
 	omap_8250_get_divisor(port, baud, priv);
-	printk(KERN_DEBUG "uartclk: %d, baudrate: %d, divisor: %d\n", port->uartclk, baud, priv->quot );
 	/*
 	 * Ok, we're now changing the port state. Do it with
 	 * interrupts disabled.

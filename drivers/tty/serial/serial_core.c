@@ -360,9 +360,7 @@ uart_get_baud_rate(struct uart_port *port, struct ktermios *termios,
 	}
 
 	for (try = 0; try < 2; try++) {
-		printk(KERN_DEBUG "Calling from %s\n",__FUNCTION__);
 		baud = tty_termios_baud_rate(termios);
-		printk(KERN_DEBUG "%s: baud rate %d\n", __FUNCTION__, baud);
 
 		/*
 		 * The spd_hi, spd_vhi, spd_shi, spd_warp kludge...
@@ -381,7 +379,6 @@ uart_get_baud_rate(struct uart_port *port, struct ktermios *termios,
 
 		if (baud >= min && baud <= max)
 		{
-			printk(KERN_DEBUG "%s: RETURNING NOW, baud rate %d\n", __FUNCTION__, baud);
 			return baud;
 		}
 		/*
@@ -2202,12 +2199,6 @@ uart_report_port(struct uart_driver *drv, struct uart_port *port)
 		break;
 	}
 
-	printk(KERN_INFO "%s%s%s%d at %s (irq = %d, base_baud = %d) is a %s\n",
-	       port->dev ? dev_name(port->dev) : "",
-	       port->dev ? ": " : "",
-	       drv->dev_name,
-	       drv->tty_driver->name_base + port->line,
-	       address, port->irq, port->uartclk / 16, uart_type(port));
 }
 
 static void
