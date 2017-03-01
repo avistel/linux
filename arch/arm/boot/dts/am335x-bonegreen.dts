@@ -76,10 +76,26 @@
             BONE_P8_38 (PIN_OUTPUT_PULLDOWN | MUX_MODE6)
         >;
     };
+
+    dcan1_pins: pinmux_dcan1_pins {
+		pinctrl-single,pins = <
+			/* P9_26: uart1_rxd.d_can1_tx */
+			BONE_P9_26 (PIN_OUTPUT_PULLUP | MUX_MODE2)
+			/* P9_24: uart1_txd.d_can1_rx */
+			BONE_P9_24 (PIN_INPUT_PULLUP | MUX_MODE2)
+		>;
+	};
 };
 
 &uart2 {
     status = "okay";
     pinctrl-names = "default";
     pinctrl-0 = <&bb_uart2_rs485_pins>;
+};
+
+
+&dcan1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&dcan1_pins>;
 };
